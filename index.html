@@ -6,38 +6,22 @@
     <link rel="stylesheet" href="estilo_projeto.css">
 </head>
 <body>
-<!-- Cabeçalho -->
 <header id="area-cabecalho">
     <div id="area-logo">
         <h1>Gestão <span class="cinza">Estoque</span></h1>
     </div>
-    <!-- Menu de navegação -->
     <nav id="area-menu-cabecalho">
         <a href="produtos.html">Produtos</a>
+        <a href="relatorios.html">Relatórios</a>
         <a href="analises.html">Análises</a>
     </nav>
 </header>
 
-<!-- Seletor de Datas e Botão de Consulta de Vendas -->
-<div id="consulta-vendas">
-    <h3>Consultar de Vendas</h3>
-     <label>Data Início: <input type="date" id="data-inicio"></label>
-    <label>Data Fim: <input type="date" id="data-fim"></label>
-    <button onclick="consultarVendas()">Consultar Vendas</button>
-    <div id="resultado-vendas"></div>
-</div>
-</div>
-
-
-<!-- Área Principal -->
 <div id="area-principal">
-<div id="area-produtos">
+    <div id="area-produtos">
         <h2>Produtos</h2>
     </div>
 
-
-
-<!-- Tabela de Produtos -->
     <div id="area-menu-produtos">
         <table>
             <thead>
@@ -49,26 +33,55 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Os produtos serão carregados aqui pelo JavaScript -->
+            <!-- Dados carregados dinamicamente -->
             </tbody>
         </table>
     </div>
 
 
-<!-- Botão de Notificação -->
+    <!-- Botão de Notificação -->
     <div>
         <input type="button" onclick="verificarVencimento()" value="Verificar vencimento de produto" />
     </div>
+
+    <div id="adicionar-produto">
+        <h3>Adicionar Produto</h3>
+        <form id="form-adicionar-produto">
+            <label>
+                Código:
+                <input type="text" id="codigo-produto" required>
+            </label>
+            <label>
+                Descrição:
+                <input type="text" id="descricao-produto" required>
+            </label>
+            <label>
+                Quantidade:
+                <input type="number" id="quantidade-produto" min="1" required>
+            </label>
+            <label>
+                Data de Validade:
+                <input type="date" id="validade-produto" required>
+            </label>
+            <button type="submit">Adicionar</button>
+        </form>
+    </div>
+
+    <!-- Modal de Alerta -->
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="fecharModal()">&times;</span>
+            <h2>Atenção!</h2>
+            <p id="alert-message"></p>
+        </div>
+    </div>
+
+    <!-- Script para carregar produtos e verificar vencimento -->
+    <script src="script.js"></script>
+</body>
+</html>
 </div>
 
-<!-- Modal de Alerta -->
-<div id="alert-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="fecharModal()">&times;</span>
-        <h2>Atenção!</h2>
-        <p id="alert-message"></p>
-    </div>
-</div>
 
 <!-- Script para carregar produtos e verificar vencimento -->
 <script src="script.js"></script>
