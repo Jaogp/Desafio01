@@ -1,3 +1,4 @@
+/*Limpar formatações padrão*/
 * {
     margin: 0;
     padding: 0;
@@ -55,64 +56,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* Consulta de Vendas */
-#consulta-vendas {
-    margin-top: 30px;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #e9f3ff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 600px;
-    margin: 30px auto;
-}
-
-#consulta-vendas h3 {
-    color: hsl(216, 51%, 27%);
-    margin-bottom: 15px;
-    font-size: 1.5em;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    font-weight: bold;
-    margin-right: 5px;
-    color: #333;
-}
-
-.input-date {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 45%;
-    max-width: 200px;
-}
-
-.btn-consulta {
-    background-color: hsl(216, 51%, 27%);
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s;
-}
-
-.btn-consulta:hover {
-    background-color: hsl(216, 51%, 37%);
-}
-
-#resultado-vendas {
-    margin-top: 15px;
-    font-size: 1.1em;
-    color: #333;
-}
-
-
 /* Tabela */
 table {
     width: 100%;
@@ -135,6 +78,60 @@ th {
 td {
     background-color: #fff;
 }
+
+
+#adicionar-produto {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #e9f3ff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 30px auto;
+    text-align: center;
+}
+
+#adicionar-produto h3 {
+    color: hsl(216, 51%, 27%);
+    margin-bottom: 15px;
+}
+
+#form-adicionar-produto {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#form-adicionar-produto label {
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+#form-adicionar-produto input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+#form-adicionar-produto button {
+    background-color: hsl(216, 51%, 27%);
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+#form-adicionar-produto button:hover {
+    background-color: hsl(216, 51%, 37%);
+}
+
 
 /* Modal de Alerta */
 .modal {
