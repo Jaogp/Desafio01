@@ -1,9 +1,22 @@
-// Função para carregar produtos do backend e adicionar à tabela
-async function carregarProdutos() {
-    try {
-        const response = await fetch('http://localhost:3358/produto');
-        const produtos = await response.json();
+// Classe base para abstrair entidades
+class Entidade {
+    constructor(dados) {
+        Object.assign(this, dados);
+    }
 
+    salvar() {
+        console.log(`Salvando ${this.constructor.name}:`, this);
+    }
+}
+
+// Classe Produto
+class Produto extends Entidade {
+    static async carregarProdutos() {
+        const response = await fetch('http://localhost:3358/produto');
+        return await response.json();
+    }
+
+    static exibirProdutos(produtos) {
         const tabela = document.querySelector('#area-menu-produtos tbody');
         tabela.innerHTML = ''; // Limpa a tabela antes de adicionar os dados
 
@@ -13,89 +26,124 @@ async function carregarProdutos() {
                 <td>${produto.codigo}</td>
                 <td>${produto.descricao}</td>
                 <td>${produto.quantidade}</td>
-                <td><span class="validade" data-validade="${produto.data_validade}">${formatarData(produto.data_validade)}</span></td>
+                <td><span class="validade" data-validade="${produto.data_validade}">${Produto.formatarData(produto.data_validade)}</span></td>
             `;
             tabela.appendChild(row);
         });
+    }
 
-        // Chama a função de verificação após carregar os produtos
-        verificarVencimento();
-    } catch (error) {
-        console.error('Erro ao carregar produtos:', error);
+    static formatarData(data) {
+        const dataObj = new Date(data);
+        const dia = String(dataObj.getDate()).padStart(2, '0');
+        const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+        const ano = dataObj.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    validarEstoque() {
+        if (this.quantidade <= 0) {
+            console.warn(`Produto ${this.descricao} está sem estoque.`);
+        }
     }
 }
 
-// Função para verificar a validade dos produtos e notificar se estiverem próximos do vencimento
-function verificarVencimento() {
-    const dataAtual = new Date();
-    const datasValidade = document.querySelectorAll('.validade');
+// Classe Venda
+class Venda extends Entidade {
+    calcularTotal() {
+        return this.quantidade * this.valorUnitario;
+    }
 
-    datasValidade.forEach(item => {
-        const dataValidade = new Date(item.getAttribute('data-validade'));
-        const diferencaEmDias = Math.floor((dataValidade - dataAtual) / (1000 * 60 * 60 * 24));
-
-        if (diferencaEmDias <= 7 && diferencaEmDias >= 0) {
-            alert(`Atenção! O produto "${item.closest('tr').children[1].innerText}" irá vencer em ${diferencaEmDias} dias.`);
-            abrirModal(`O produto "${descricaoProduto}" irá vencer em ${diferencaEmDias} dias.`);
-        }
-    });
+    static async consultarVendas(dataInicio, dataFim) {
+        const response = await fetch(`http://localhost:3358/total-vendas?dataInicio=${dataInicio}&dataFim=${dataFim}`);
+        return await response.json();
+    }
 }
 
-// Função para consultar total de vendas em um intervalo de datas
+// Função para exibir vendas
 async function consultarVendas() {
     const dataInicio = document.getElementById('data-inicio').value;
     const dataFim = document.getElementById('data-fim').value;
-    const resultadoVendas = document.getElementById('resultado-vendas');
 
     if (!dataInicio || !dataFim) {
         alert('Por favor, selecione as datas para consulta.');
         return;
     }
 
-    try {
-        const response = await fetch(`http://localhost:3358/total-vendas?dataInicio=${dataInicio}&dataFim=${dataFim}`);
-        const { totalVendas, totalProdutos } = await response.json();
+    const { totalVendas, totalProdutos } = await Venda.consultarVendas(dataInicio, dataFim);
 
-        resultadoVendas.innerHTML = `
-            <p>Total de Vendas: R$ ${totalVendas.toFixed(2)}</p>
-            <p>Total de Produtos Saídos: ${totalProdutos}</p>
-        `;
-    } catch (error) {
-        console.error('Erro ao consultar vendas:', error);
-        resultadoVendas.innerHTML = '<p>Erro ao buscar total de vendas.</p>';
+    const resultado = document.getElementById('resultado-vendas');
+    resultado.innerHTML = `
+        <p>Total de Vendas: R$ ${totalVendas.toFixed(2)}</p>
+        <p>Total de Produtos Saídos: ${totalProdutos}</p>
+    `;
+}
+
+// Carregar os produtos ao iniciar
+document.addEventListener('DOMContentLoaded', async () => {
+    const produtos = await Produto.carregarProdutos();
+    Produto.exibirProdutos(produtos);
+});
+
+// Array local para armazenar os produtos
+let produtosLocais = [];
+
+// Carregar produtos do localStorage ao iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    const produtosSalvos = JSON.parse(localStorage.getItem('produtosLocais')) || [];
+    produtosLocais = produtosSalvos;
+    Produto.exibirProdutos(produtosLocais);
+});
+
+// Evento para adicionar um produto
+document.getElementById('form-adicionar-produto').addEventListener('submit', event => {
+    event.preventDefault();
+
+    // Capturar os valores do formulário
+    const codigo = document.getElementById('codigo-produto').value;
+    const descricao = document.getElementById('descricao-produto').value;
+    const quantidade = parseInt(document.getElementById('quantidade-produto').value, 10);
+    const validade = document.getElementById('validade-produto').value;
+
+    // Criar um objeto produto
+    const novoProduto = { codigo, descricao, quantidade, data_validade: validade };
+
+    // Adicionar ao array local
+    produtosLocais.push(novoProduto);
+
+    // Salvar no localStorage
+    localStorage.setItem('produtosLocais', JSON.stringify(produtosLocais));
+
+    // Atualizar a tabela
+    Produto.exibirProdutos(produtosLocais);
+
+    // Limpar o formulário
+    event.target.reset();
+});
+
+// Classe Produto
+class Produto {
+    static exibirProdutos(produtos) {
+        const tabela = document.querySelector('#area-menu-produtos tbody');
+        tabela.innerHTML = ''; // Limpa a tabela antes de adicionar os dados
+
+        produtos.forEach(produto => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${produto.codigo}</td>
+                <td>${produto.descricao}</td>
+                <td>${produto.quantidade}</td>
+                <td><span class="validade" data-validade="${produto.data_validade}">${Produto.formatarData(produto.data_validade)}</span></td>
+            `;
+            tabela.appendChild(row);
+        });
+    }
+
+    static formatarData(data) {
+        const dataObj = new Date(data);
+        const dia = String(dataObj.getDate()).padStart(2, '0');
+        const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+        const ano = dataObj.getFullYear();
+        return `${dia}/${mes}/${ano}`;
     }
 }
 
-// Função para abrir o modal com a mensagem
-function abrirModal(mensagem) {
-    const modal = document.getElementById('alert-modal');
-    const alertMessage = document.getElementById('alert-message');
-    alertMessage.textContent = mensagem;
-    modal.style.display = 'block';
-}
-
-// Função para fechar o modal
-function fecharModal() {
-    const modal = document.getElementById('alert-modal');
-    modal.style.display = 'none';
-}
-
-// Fechar o modal se o usuário clicar fora do conteúdo
-window.onclick = function(event) {
-    const modal = document.getElementById('alert-modal');
-    if (event.target == modal) {
-        fecharModal();
-    }
-}
-
-// Função para formatar data no formato brasileiro (dd/mm/yyyy)
-function formatarData(data) {
-    const dataObj = new Date(data);
-    const dia = String(dataObj.getDate()).padStart(2, '0');
-    const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
-    const ano = dataObj.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-}
-
-// Carregar produtos ao carregar a página
-document.addEventListener('DOMContentLoaded', carregarProdutos);
